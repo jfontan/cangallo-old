@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'gli'
+
+
+$: << './lib'
+$: << '.'
+
+require 'pp'
+require 'cangallo'
+
+include GLI::App
+
+def error(message)
+  STDERR.puts message
+  exit(-1)
+end
+
+
+flag [:r,:repo]
+
+pre do |gops, ops, args|
+  $conf = Cangallo::Config.new
+
+  $repo = $conf.repo(gops[:repo])
+end
+
+# Repository commands
+
+command :list do |c|
+  c.action do
+    $repo.list.each do |name|
+      img = $repo.get(name)
+
+      parent = img['parent']
+      parent = " <= #{parent}" if parent
+
+      puts "#{name}#{parent}"
+    end
+  end
+end
+
+command :list_tags do |c|
+  c.action do
+    tags = $repo.tags
+    images = $repo.images
+
+    tags.each do |name, sha1|
+      img = images[sha1]
+
+      parent = img['parent']
+
+      if parent
+        parent_img = images[parent]
+        tag = parent_img['tag']
+        parent = tag if tag
+      end
+
+      parent = " <= #{parent}" if parent
+
+      puts "#{name}#{parent}"
+    end
+  end
+end
+
+command :add do |c|
+  c.flag [:p, :parent]
+  c.flag [:t, :tag]
+
+  c.action do |global_options, options, args|
+    file_path = args.first
+
+    image_metadata = {
+      'description' => options['description'],
+      'parent' => options['parent'],
+      'tag' => options['tag']
+    }
+
+    image = $repo.put_file(file_path, image_metadata)
+
+    puts image['sha1']
+  end
+end
+
+command :download do |c|
+    c.action do |global_options, options, args|
+        name = args.first
+        local = $conf.repo
+
+        img = $repo.get(name)
+
+        path = $repo.image_path(img.sha1)
+
+        puts path
+
+        download_recursive($repo, local, name)
+    end
+end
+
+def download_recursive(repo, local, name)
+  begin
+    local_img = local.get(name)
+  rescue
+    local_img = nil
+  end
+
+  if !local_img
+    img = repo.get(name)
+    sha1 = img.sha1
+
+    local_path = local.image_path(sha1) << '.tmp'
+    remote_path = repo.image_path(sha1)
+
+    curl_cmd = "curl -o #{local_path} #{remote_path}"
+    puts curl_cmd
+    system(curl_cmd)
+
+    parent = img['parent']
+
+    local.put_file(local_path, img.data)
+
+    download_recursive(repo, local, parent) if parent
+  end
+end
+
+command :overlay do |c|
+  c.action do |global_options, options, args|
+    origin = args[0]
+    destination = args[1]
+
+    image = $repo.get(origin)
+    path = $repo.image_path(image.sha1)
+
+    Cangallo::Qcow2.create_from_base(path, destination)
+  end
+end
+
+# Image commands
+
+desc 'Create a new qcow2 image'
+
+command :create do |c|
+  c.flag [:p, :parent]
+  c.flag [:s, :size]
+
+  c.action do |gops, ops, args|
+    image = args.first
+    error('Image not provided') if !image
+
+    size = ops[:size]
+    parent = ops[:parent]
+
+    error('Parent or size should be defined') if !(parent || size)
+
+    Cangallo::Qcow2.create(image, parent, size)
+  end
+end
+
+desc 'Gets info about an image'
+
+command :info do |c|
+  c.action do |gops, ops, args|
+    image = args.first
+    error('Image not provided') if !image
+
+    qcow = Cangallo::Qcow2.new(image)
+
+    pp qcow.info
+  end
+end
+
+exit run(ARGV)
+
