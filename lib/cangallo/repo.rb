@@ -68,12 +68,21 @@ module Cangallo
       @index['images']
     end
 
+    def find_image(name)
+      keys = @index['images'].keys
+      length = name.length
+
+      matches = keys.select {|k| k[0,length] == name }
+      sha1 = matches.first
+
+      sha1 = @index['tags'][name] if !sha1
+
+      sha1
+    end
+
     def get(name)
-      if sha1 = @index['tags'][name]
-        data = @index['images'][sha1]
-      else
-        data = @index['images'][name]
-      end
+      sha1 = find_image(name)
+      data = @index['images'][sha1]
 
       if data
         Image.new(data, :repo => self)
