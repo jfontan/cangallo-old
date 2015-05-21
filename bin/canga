@@ -32,9 +32,12 @@ command :list do |c|
       img = $repo.get(name)
 
       parent = img['parent']
-      parent = " <= #{parent}" if parent
+      if parent
+        parent = get_identifier($repo.get(parent))
+        parent = " <= #{parent}"
+      end
 
-      puts "#{name}#{parent}"
+      puts "#{get_identifier(img)}#{parent}"
     end
   end
 end
@@ -60,6 +63,19 @@ command :list_tags do |c|
       puts "#{name}#{parent}"
     end
   end
+end
+
+def get_identifier(image)
+    tags = $repo.tags
+    images = $repo.images
+
+    short_tag = image.sha1[0,7]
+
+    if tags[image.tag] == image.sha1
+      "#{image.tag} (#{short_tag})"
+    else
+      short_tag
+    end
 end
 
 command :add do |c|

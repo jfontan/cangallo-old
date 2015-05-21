@@ -145,7 +145,7 @@ module Cangallo
         name = sha1
       end
 
-      repo_path = File.join(@path, 'images', name+'.qcow2')
+      repo_path = File.join(@path, name+'.qcow2')
       FileUtils.mv(tmp, repo_path)
 
       info.delete('parent')
