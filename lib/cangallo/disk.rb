@@ -31,14 +31,9 @@ module Cangallo
     end
 
     def prepare_image(destination, parent = nil)
-      #FileUtils.cp @path, destination
-
       qcow2 = Qcow2.new(@path)
       qcow2.compress(destination)
 
-      #pp qcow2.sparsify destination
-
-      #qcow2 = Qcow2.new(destination)
       qcow2.rebase(parent) if parent
 
       @path = destination

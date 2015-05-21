@@ -71,7 +71,7 @@ module Cangallo
       cmd = [:create, '-f qcow2', "-o backing_file=#{origin}", destination]
       cmd << size if size
 
-      pp execute(*cmd)
+      execute(*cmd)
     end
 
     def self.create(image, parent=nil, size=nil)
@@ -80,7 +80,7 @@ module Cangallo
       cmd << image
       cmd << size if size
 
-      pp execute(*cmd)
+      execute(*cmd)
     end
   end
 

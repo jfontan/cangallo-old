@@ -13,10 +13,7 @@ module Cangallo
       @config = config
       @path = @config['path']
 
-      pp config
-
       read_index
-      pp @index
     end
 
     def read_index
@@ -60,10 +57,6 @@ module Cangallo
     end
 
     def list
-      #files = Dir["#{@path}/metadata/**/*.json"]
-      #l = files.map {|f| f.gsub(%r|^#{@path}/metadata/|, '').gsub(/\.json$/, '') }
-      #l.delete('index')
-      #l
       @index['images'].keys
     end
 
@@ -76,9 +69,6 @@ module Cangallo
     end
 
     def get(name)
-      #text = File.read(metadata_name(name))
-      #data = JSON.parse(text)
-
       if sha1 = @index['tags'][name]
         data = @index['images'][sha1]
       else
@@ -93,19 +83,8 @@ module Cangallo
     end
 
     def put(image)
-      #text = JSON.pretty_generate image.data
-
       name = image.sha1
 
-      #directory = File.dirname(metadata_name(name))
-      #FileUtils.mkdir_p directory
-
-      #File.open(metadata_name(name), 'w') do |f|
-      #  f.write(text)
-      #end
-
-      pp name
-      pp @index['images']
       @index['images'][name] = image.data
       @index['tags'][image.tag] = name if image.tag
 
@@ -124,7 +103,6 @@ module Cangallo
     end
 
     def write_index
-      #text = @index.to_json
       text = JSON.pretty_generate @index
       File.open(metadata_name('index'), 'w') do |f|
         f.write(text)
