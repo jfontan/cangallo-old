@@ -54,8 +54,7 @@ EOT
     def create_repo_dir(path)
       if !File.exist?(path)
         FileUtils.mkdir_p(path)
-        FileUtils.mkdir_p(File.join(path, 'metadata'))
-        FileUtils.mkdir_p(File.join(path, 'images'))
+        FileUtils.mkdir_p(File.join(path, 'tmp'))
       end
     end
 

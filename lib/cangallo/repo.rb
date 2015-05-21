@@ -38,11 +38,11 @@ module Cangallo
     end
 
     def metadata_name(name)
-      File.join(@path, 'metadata', "#{name}.json")
+      File.join(@path, "#{name}.json")
     end
 
     def image_path(sha1)
-      File.join(@path, 'images', "#{sha1}.qcow2")
+      File.join(@path, "#{sha1}.qcow2")
     end
 
     def tmp_name(name)
