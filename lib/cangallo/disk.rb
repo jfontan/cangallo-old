@@ -1,5 +1,5 @@
 
-require 'qcow2'
+require 'cangallo/qcow2'
 require 'systemu'
 require 'fileutils'
 

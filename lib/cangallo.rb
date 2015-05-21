@@ -1,6 +1,6 @@
 
-require 'repo'
-require 'qcow2'
-require 'disk'
-require 'config'
+require 'cangallo/repo'
+require 'cangallo/qcow2'
+require 'cangallo/disk'
+require 'cangallo/config'
 
