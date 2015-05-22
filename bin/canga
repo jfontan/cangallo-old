@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'gli'
+require 'tty'
 
 $: << File.basename(__FILE__) + "/../lib"
 
@@ -28,17 +29,22 @@ end
 
 command :list do |c|
   c.action do
-    $repo.list.each do |name|
-      img = $repo.get(name)
+    table = TTY::Table.new(:header => ['Name', 'Parent', 'Size']) do |t|
+      $repo.list.each do |name|
+        img = $repo.get(name)
 
-      parent = img['parent']
-      if parent
-        parent = get_identifier($repo.get(parent))
-        parent = " <= #{parent}"
+        parent = img['parent']
+        if parent
+          parent = get_identifier($repo.get(parent))
+          #parent = " <= #{parent}"
+        end
+
+        #puts "#{get_identifier(img)}#{parent}"
+        size = img.data['size'].to_f/1024/1024
+        t << [get_identifier(img), parent, "#{size.round(2)}M"]
       end
-
-      puts "#{get_identifier(img)}#{parent}"
     end
+    puts table.render(:unicode)
   end
 end
 
