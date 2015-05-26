@@ -32,9 +32,9 @@ module Cangallo
 
     def prepare_image(destination, parent = nil)
       qcow2 = Qcow2.new(@path)
-      qcow2.compress(destination)
+      qcow2.compress(destination, parent)
 
-      qcow2.rebase(parent) if parent
+      qcow2.rebase(File.basename(parent)) if parent
 
       @path = destination
     end

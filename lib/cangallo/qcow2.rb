@@ -19,10 +19,14 @@ module Cangallo
       JSON.parse res
     end
 
-    def compress(destination = nil)
+    def compress(destination = nil, parent = nil)
       new_path = destination || @path + '.compressed'
 
-      execute :convert, '-O qcow2', '-c', @path, new_path
+      command = [:convert, '-O qcow2', '-c']
+      command << "-o backing_file=#{parent}" if parent
+      command += [@path, new_path]
+
+      execute *command
 
       if !destination
         begin

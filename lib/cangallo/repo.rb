@@ -3,6 +3,7 @@ require 'json'
 require 'fileutils'
 require 'securerandom'
 require 'open-uri'
+require 'date'
 
 module Cangallo
 
@@ -128,9 +129,24 @@ module Cangallo
     end
 
     def put_file(path, data = {})
-      tmp = tmp_name(path)
-      parent = data['parent']
-      parent = parent+'.qcow2' if parent
+      file_name = File.basename(path)
+      tmp = tmp_name(file_name)
+
+      if data['parent']
+        parent_img = get(data['parent'])
+
+        if parent_img
+          parent = image_path(parent_img.sha1)
+          data['parent_tag'] = parent_img.tag if parent_img.tag
+          data['parent'] = parent_img.sha1
+        else
+          # should give error
+          parent = nil
+          data['parent'] = nil
+        end
+      else
+        parent = nil
+      end
 
       if data['sha1']
         tmp = path
@@ -144,6 +160,8 @@ module Cangallo
         sha1 = info['sha1'] = disk.sha1
         name = sha1
       end
+
+      info['time'] = DateTime.now
 
       repo_path = File.join(@path, name+'.qcow2')
       FileUtils.mv(tmp, repo_path)
