@@ -20,9 +20,21 @@ module Cangallo
     end
 
     def compress(destination = nil, parent = nil)
+      copy(destination, :parent => parent, :compress => true)
+    end
+
+    def copy(destination = nil, options = {})
+      ops = {
+        :parent => nil,
+        :compress => false
+      }.merge(options)
+
+      parent = ops[:parent]
+
       new_path = destination || @path + '.compressed'
 
-      command = [:convert, '-O qcow2', '-c']
+      command = [:convert, '-O qcow2']
+      command << '-c' if ops[:compress]
       command << "-o backing_file=#{parent}" if parent
       command += [@path, new_path]
 
