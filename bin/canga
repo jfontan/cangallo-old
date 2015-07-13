@@ -132,9 +132,25 @@ def download_recursive(repo, local, name)
     local_path = local.image_path(sha1) << '.tmp'
     remote_path = repo.image_path(sha1)
 
-    curl_cmd = "curl -o #{local_path} #{remote_path}"
+    # Try xz
+    curl_cmd = "curl -o #{local_path}.xz #{remote_path}.xz"
     puts curl_cmd
     system(curl_cmd)
+
+    if $?.success?
+      command = "xz -d #{local_path}.xz"
+      system(command)
+    else
+      # Try uncompressed
+      curl_cmd = "curl -o #{local_path} #{remote_path}"
+      puts curl_cmd
+      system(curl_cmd)
+    end
+
+    if !$?.success?
+      STDERR.puts "Error downloading image #{remote_path}"
+      exit(-1)
+    end
 
     parent = img['parent']
 
