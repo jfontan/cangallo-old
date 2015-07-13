@@ -8,13 +8,17 @@ require 'date'
 module Cangallo
 
   class Repo
-    attr_reader :config, :path
+    attr_reader :config, :path, :index
 
     def initialize(config)
       @config = config
       @path = @config['path']
 
-      read_index
+      if @config['index']
+        @index = @config['index']
+      else
+        read_index
+      end
     end
 
     def read_index
@@ -173,6 +177,32 @@ module Cangallo
       put(image)
 
       image
+    end
+
+    def publish(directory)
+      new_repo = Cangallo::Repo.new({
+        'path' => directory,
+        'index' => self.index
+      })
+
+      FileUtils.mkdir_p(directory) if !File.directory?(directory)
+
+      new_repo.write_index
+
+      self.list.each do |img|
+        origin = self.image_path(img)
+        destination = new_repo.image_path(img)+".xz"
+
+        if File.exist?(destination)
+          puts "Image #{img} already exists. Skipping"
+          next
+        end
+
+        puts "Compressing #{img}"
+        command = "xz -T0 -0vc #{origin} > #{destination}"
+        puts command
+        system(command)
+      end
     end
   end
 
