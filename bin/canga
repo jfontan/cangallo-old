@@ -97,6 +97,8 @@ command :add do |c|
       'tag' => options['tag']
     }
 
+    image_metadata['set_tag'] = options['tag'] if options['tag']
+
     image = $repo.put_file(file_path, image_metadata)
 
     puts image['sha1']

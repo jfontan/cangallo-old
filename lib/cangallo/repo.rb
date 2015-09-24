@@ -100,7 +100,13 @@ module Cangallo
       name = image.sha1
 
       @index['images'][name] = image.data
-      @index['tags'][image.tag] = name if image.tag
+      if tag = image['set_tag']
+        if old_image = find_image(tag)
+          old_image['set_tag'] = nil
+        end
+
+        @index['tags'][image.tag] = name
+      end
 
       write_index
     end
