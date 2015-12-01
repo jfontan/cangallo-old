@@ -1,4 +1,6 @@
 
+# vim:tabstop=2:sw=2:et:
+
 require 'json'
 require 'fileutils'
 require 'securerandom'
