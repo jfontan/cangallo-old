@@ -28,7 +28,7 @@ module Cangallo
     def copy(destination = nil, options = {})
       ops = {
         :parent => nil,
-        :compress => false
+        :compress => true
       }.merge(options)
 
       parent = ops[:parent]
