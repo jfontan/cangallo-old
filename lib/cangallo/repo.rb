@@ -187,7 +187,7 @@ module Cangallo
       image
     end
 
-    def publish(directory)
+    def publish(directory, compress=false)
       new_repo = Cangallo::Repo.new({
         'path' => directory,
         'index' => self.index
@@ -199,15 +199,22 @@ module Cangallo
 
       self.list.each do |img|
         origin = self.image_path(img)
-        destination = new_repo.image_path(img)+".xz"
+        destination = new_repo.image_path(img)
+        destionation += ".xz" if compress
 
         if File.exist?(destination)
           puts "Image #{img} already exists. Skipping"
           next
         end
 
-        puts "Compressing #{img}"
-        command = "xz -T0 -0vc #{origin} > #{destination}"
+        if compress
+          puts "Compressing #{img}"
+          command = "xz -T0 -0vc #{origin} > #{destination}"
+        else
+          puts "Copying #{img}"
+          command = "cp #{origin} #{destination}"
+        end
+
         puts command
         system(command)
       end
