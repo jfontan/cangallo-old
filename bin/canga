@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# vim:tabstop=2:sw=2:et:
+
 require 'rubygems'
 require 'gli'
 require 'tty'
@@ -72,16 +74,16 @@ command :list_tags do |c|
 end
 
 def get_identifier(image)
-    tags = $repo.tags
-    images = $repo.images
+  tags = $repo.tags
+  images = $repo.images
 
-    short_tag = image.sha1[0,7]
+  short_tag = image.sha1[0,7]
 
-    if tags[image.tag] == image.sha1
-      "#{image.tag} (#{short_tag})"
-    else
-      short_tag
-    end
+  if tags[image.tag] == image.sha1
+    "#{image.tag} (#{short_tag})"
+  else
+    short_tag
+  end
 end
 
 command :add do |c|
@@ -106,18 +108,18 @@ command :add do |c|
 end
 
 command :download do |c|
-    c.action do |global_options, options, args|
-        name = args.first
-        local = $conf.repo
+  c.action do |global_options, options, args|
+    name = args.first
+    local = $conf.repo
 
-        img = $repo.get(name)
+    img = $repo.get(name)
 
-        path = $repo.image_path(img.sha1)
+    path = $repo.image_path(img.sha1)
 
-        puts path
+    puts path
 
-        download_recursive($repo, local, name)
-    end
+    download_recursive($repo, local, name)
+  end
 end
 
 def download_recursive(repo, local, name)
