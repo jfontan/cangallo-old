@@ -216,5 +216,16 @@ command :info do |c|
   end
 end
 
+command :sha1 do |c|
+  c.action do |gops, ops, args|
+    image = args.first
+    error('Image not provided') if !image
+
+    qcow = Cangallo::Qcow2.new(image)
+
+    pp qcow.sha1
+  end
+end
+
 exit run(ARGV)
 
